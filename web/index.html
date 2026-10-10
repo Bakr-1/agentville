@@ -93,7 +93,7 @@ header.top { flex: none; z-index: 3; display: flex; flex-wrap: nowrap; gap: 10px
 .grp-n { margin-left: 4px; color: var(--faint); }
 .hstats { display: flex; align-items: center; justify-content: flex-end; gap: 4px 16px; flex-wrap: wrap; flex: 0 1 auto; min-width: 0; } /* the meters wrap inside the bar, so the buttons stay on its first line */
 header.top > .seg, header.top > button { flex: none; white-space: nowrap; }
-@media (max-width: 1100px) { header.top { flex-wrap: wrap; } }
+@media (max-width: 1100px) { header.top { flex-wrap: wrap; } .hstats { justify-content: flex-start; } .hstat { flex-wrap: wrap; white-space: normal; } } /* a wide Machine entry wraps instead of running off the left edge */
 #meta { flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: right; } /* gives way before the buttons wrap */
 .hstat { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; white-space: nowrap; }
 .hstat .meter { width: 64px; }
@@ -112,6 +112,19 @@ header.top > .seg, header.top > button { flex: none; white-space: nowrap; }
   .col.center .center-body { max-height: none; }
   .tree { max-height: 60vh; }
   .center-body.viewing { height: 80vh; }
+}
+/* Phone and touch screens: the top bar wraps instead of clipping, what you tap is at least 40px high, and
+   nothing is wider than the screen (code blocks scroll inside their bubble). */
+@media (max-width: 700px), (pointer: coarse) {
+  html, body { overflow-x: hidden; }
+  header.top { padding: 8px 12px; gap: 8px; }
+  .hstats { justify-content: flex-start; flex: 1 1 100%; }
+  .hstat { flex-wrap: wrap; white-space: normal; }
+  .hstat .meter { width: 48px; }
+  header.top > button, header.top > .seg button, .seg button, .grp, .tab button, .act, button.act, .qbtns .act { min-height: 40px; }
+  input, select, textarea { min-height: 40px; font-size: 16px; }
+  .kpis { gap: 8px; }
+  .row { min-height: 44px; }
 }
 .sec { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 16px 0 8px; }
 .sec:first-child { margin-top: 0; }
