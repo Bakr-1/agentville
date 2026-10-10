@@ -115,9 +115,16 @@ header.top > .seg, header.top > button { flex: none; white-space: nowrap; }
 }
 /* Phone and touch screens: the top bar wraps instead of clipping, what you tap is at least 40px high, and
    nothing is wider than the screen (code blocks scroll inside their bubble). */
+#more-toggle { display: none; }
+@media (max-width: 700px) {
+  #more-toggle { display: inline-flex; }
+  header.top:not([data-more="open"]) :is(#hstats, #meta, #helper-open, #setup-open, #theme-toggle, #broadcast-open) { display: none; }
+}
 @media (max-width: 700px), (pointer: coarse) {
   html, body { overflow-x: hidden; }
-  header.top { padding: 8px 12px; gap: 8px; }
+  header.top { padding: 4px 12px; gap: 4px 8px; }
+  header.top .seg { padding: 1px; }
+  header.top .brand { font-size: 15px; }
   .hstats { justify-content: flex-start; flex: 1 1 100%; }
   .hstat { flex-wrap: wrap; white-space: normal; }
   .hstat .meter { width: 48px; }
@@ -651,7 +658,7 @@ html[data-guard="on"] .app .act, html[data-guard="on"] dialog[open] .act { opaci
 </style>
 </head>
 <body>
-<header class="top">
+<header class="top" id="top">
   <div class="brand">
     <span class="brand-mark" data-brand="22"></span>
     Agentville
@@ -667,6 +674,7 @@ html[data-guard="on"] .app .act, html[data-guard="on"] dialog[open] .act { opaci
   <button class="act" id="helper-open" type="button" style="margin:0" data-tip="✨ Helper: small writing jobs for the dashboard with Haiku, through your own Claude Code (off until you switch it on)">✨ Helper</button>
   <button class="act" id="setup-open" type="button" style="margin:0" data-tip="Your Claude Code setup: plugins and skills (and what each costs in context), MCP servers, permission rules">⚙ Claude Code</button>
   <button class="act" id="side-toggle" type="button" style="margin:0" aria-pressed="false" hidden data-tip="Show the selected farmer's answer box, activity and files beside the farm">◨ Sidebar</button>
+  <button class="act" id="more-toggle" type="button" style="margin:0" aria-expanded="false" data-tip="Show or hide the rest of the top bar: machine stats, helper, settings, theme">⋯ More</button>
   <button class="act" id="theme-toggle" type="button" style="margin:0">☾ Dark</button>
 </header>
 <div id="banner" class="banner">Disconnected from the collector — retrying…</div>

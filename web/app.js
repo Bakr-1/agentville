@@ -501,7 +501,8 @@ document.addEventListener('click', async e => {
     notice(r.ok ? (option === null ? 'Left to the terminal.' : 'Allowed, and kept as chosen.') : `Could not send: ${r.error}`);
     return;
   }
-  if (el.id === 'theme-toggle') cycleTheme();
+  if (el.id === 'more-toggle') toggleMore(el);
+  else if (el.id === 'theme-toggle') cycleTheme();
   else if (el.id === 'open-cleanup') openCleanup();
   else if (el.id === 'act-copy') { await navigator.clipboard.writeText(d.text); notice('Resume command copied.'); }
   else if (el.id === 'act-open') { const r = await post(`/api/actions/open/${encodeURIComponent(selected)}`, {}); notice(r.ok ? 'Opened in Terminal.' : `Could not open: ${r.error}`); }
@@ -1042,6 +1043,14 @@ function connect() {
     $('banner').classList.add('show');
     $('live').classList.add('off');
   };
+}
+
+/** Phone: the top bar's "More" button shows or hides the stats, helper, settings and theme buttons. */
+let moreOpen = false;
+function toggleMore(button) {
+  moreOpen = !moreOpen;
+  $('top').setAttribute('data-more', moreOpen ? 'open' : 'closed');
+  button.setAttribute('aria-expanded', String(moreOpen));
 }
 
 // Dark first: no saved choice means Dark. Auto follows macOS.

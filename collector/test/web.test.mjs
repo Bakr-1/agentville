@@ -3144,3 +3144,21 @@ test('the page has phone rules: wrapping header stats, touch-sized controls, and
   // a tablet: the header stats start at the left and wrap, so the Machine entry is not cut off
   assert.match(html, /@media \(max-width: 1100px\) \{[^\n]*\.hstats \{ justify-content: flex-start; \}[^\n]*\.hstat \{ flex-wrap: wrap;/);
 });
+
+// A phone's header was about 190 px tall. Under 700 px it now shows the brand and the view and session buttons;
+// the stats, helper, settings and theme buttons sit behind a "More" button.
+test('on a phone the top bar keeps the brand and the main buttons and puts the rest behind a More button', async () => {
+  assert.match(html, /<header class="top" id="top">/);
+  assert.match(html, /<button class="act" id="more-toggle" type="button"[^>]*aria-expanded="false"/);
+  assert.match(html, /#more-toggle \{ display: none; \}/);
+  assert.match(html, /@media \(max-width: 700px\) \{[^}]*#more-toggle \{ display: inline-flex; \}/);
+  assert.match(html, /header\.top:not\(\[data-more="open"\]\) :is\(#hstats, #meta, #helper-open, #setup-open, #theme-toggle, #broadcast-open\) \{ display: none; \}/);
+  const page = loadPage();
+  page.push(richSnapshot([richAgent()]));
+  await page.click('more-toggle');
+  assert.equal(page.el('top').attrs['data-more'], 'open');
+  assert.equal(page.el('more-toggle').attrs['aria-expanded'], 'true');
+  await page.click('more-toggle');
+  assert.equal(page.el('top').attrs['data-more'], 'closed');
+  assert.equal(page.el('more-toggle').attrs['aria-expanded'], 'false');
+});
