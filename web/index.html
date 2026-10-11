@@ -93,7 +93,7 @@ header.top { flex: none; z-index: 3; display: flex; flex-wrap: nowrap; gap: 10px
 .grp-n { margin-left: 4px; color: var(--faint); }
 .hstats { display: flex; align-items: center; justify-content: flex-end; gap: 4px 16px; flex-wrap: wrap; flex: 0 1 auto; min-width: 0; } /* the meters wrap inside the bar, so the buttons stay on its first line */
 header.top > .seg, header.top > button { flex: none; white-space: nowrap; }
-@media (max-width: 1100px) { header.top { flex-wrap: wrap; } }
+@media (max-width: 1100px) { header.top { flex-wrap: wrap; } .hstats { justify-content: flex-start; } .hstat { flex-wrap: wrap; white-space: normal; } } /* a wide Machine entry wraps instead of running off the left edge */
 #meta { flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: right; } /* gives way before the buttons wrap */
 .hstat { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; white-space: nowrap; }
 .hstat .meter { width: 64px; }
@@ -112,6 +112,26 @@ header.top > .seg, header.top > button { flex: none; white-space: nowrap; }
   .col.center .center-body { max-height: none; }
   .tree { max-height: 60vh; }
   .center-body.viewing { height: 80vh; }
+}
+/* Phone and touch screens: the top bar wraps instead of clipping, what you tap is at least 40px high, and
+   nothing is wider than the screen (code blocks scroll inside their bubble). */
+#more-toggle { display: none; }
+@media (max-width: 700px) {
+  #more-toggle { display: inline-flex; }
+  header.top:not([data-more="open"]) :is(#hstats, #meta, #helper-open, #setup-open, #theme-toggle, #broadcast-open) { display: none; }
+}
+@media (max-width: 700px), (pointer: coarse) {
+  html, body { overflow-x: hidden; }
+  header.top { padding: 4px 12px; gap: 4px 8px; }
+  header.top .seg { padding: 1px; }
+  header.top .brand { font-size: 15px; }
+  .hstats { justify-content: flex-start; flex: 1 1 100%; }
+  .hstat { flex-wrap: wrap; white-space: normal; }
+  .hstat .meter { width: 48px; }
+  header.top > button, header.top > .seg button, .seg button, .grp, .tab button, .act, button.act, .qbtns .act { min-height: 40px; }
+  input, select, textarea { min-height: 40px; font-size: 16px; }
+  .kpis { gap: 8px; }
+  .row { min-height: 44px; }
 }
 .sec { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 16px 0 8px; }
 .sec:first-child { margin-top: 0; }
@@ -638,7 +658,7 @@ html[data-guard="on"] .app .act, html[data-guard="on"] dialog[open] .act { opaci
 </style>
 </head>
 <body>
-<header class="top">
+<header class="top" id="top">
   <div class="brand">
     <span class="brand-mark" data-brand="22"></span>
     Agentville
@@ -654,6 +674,7 @@ html[data-guard="on"] .app .act, html[data-guard="on"] dialog[open] .act { opaci
   <button class="act" id="helper-open" type="button" style="margin:0" data-tip="✨ Helper: small writing jobs for the dashboard with Haiku, through your own Claude Code (off until you switch it on)">✨ Helper</button>
   <button class="act" id="setup-open" type="button" style="margin:0" data-tip="Your Claude Code setup: plugins and skills (and what each costs in context), MCP servers, permission rules">⚙ Claude Code</button>
   <button class="act" id="side-toggle" type="button" style="margin:0" aria-pressed="false" hidden data-tip="Show the selected farmer's answer box, activity and files beside the farm">◨ Sidebar</button>
+  <button class="act" id="more-toggle" type="button" style="margin:0" aria-expanded="false" data-tip="Show or hide the rest of the top bar: machine stats, helper, settings, theme">⋯ More</button>
   <button class="act" id="theme-toggle" type="button" style="margin:0">☾ Dark</button>
 </header>
 <div id="banner" class="banner">Disconnected from the collector — retrying…</div>
