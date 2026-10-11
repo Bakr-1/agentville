@@ -70,6 +70,26 @@ function systemHtml() {
   return `<span class="hstat" data-tip="${esc(`This computer: ${parts.join(' · ')}`)}"><span class="ml">System</span><b>${esc(s.os)}</b><span class="faint">${esc(parts.slice(1).join(' · '))}</span></span>`;
 }
 
+const upText = sec => { const d = Math.floor(sec / 86400), h = Math.floor((sec % 86400) / 3600), m = Math.floor((sec % 3600) / 60); return d ? `${d}d ${h}h` : h ? `${h}h ${m}m` : `${m}m`; };
+const driveName = root => String(root).replace(/[\\/]+$/, '') || '/';
+
+/** The whole machine's health, not just the agents' share: CPU, memory, free space per drive, how long it has been up. */
+function healthHtml() {
+  const h = snap.machine?.health;
+  if (!h?.mem) return '';
+  const memRatio = h.mem.usedMb / (h.mem.totalMb || 1);
+  const bits = [];
+  if (h.cpuPct != null) bits.push(`${meter(h.cpuPct / 100, severityOf(h.cpuPct / 100, 0.7, 0.9), `The whole machine's CPU: ${h.cpuPct}% of all cores`)}<b>CPU ${h.cpuPct}%</b>`);
+  bits.push(`${meter(memRatio, severityOf(memRatio, 0.8, 0.92), `Memory in use on the whole machine: ${gb(h.mem.usedMb)} of ${gb(h.mem.totalMb)}`)}<b>RAM ${gb(h.mem.usedMb)} of ${gb(h.mem.totalMb)}</b>`);
+  for (const d of h.disks ?? []) {
+    const used = 1 - d.freeGb / (d.totalGb || 1);
+    const names = d.also?.length ? `${d.root} (also ${d.also.join(', ')})` : d.root;
+    bits.push(`<span data-tip="${esc(`${names}: ${d.freeGb} GB free of ${d.totalGb} GB`)}">${meter(used, severityOf(used, 0.85, 0.95), `${d.freeGb} GB free`)}<b>${esc(driveName(d.root))} ${d.freeGb} GB free</b></span>`);
+  }
+  if (h.uptimeSec != null) bits.push(`<span class="faint">up ${upText(h.uptimeSec)}</span>`);
+  return `<span class="hstat" data-tip="The machine's own health, read about every 5 seconds"><span class="ml">Machine</span>${bits.join(' ')}</span>`;
+}
+
 function hstatsHtml() {
   const totalMb = snap.machine?.totalMemMb || 1;
   const withMem = snap.agents.filter(a => a.proc?.rssMb).sort((x, y) => y.proc.rssMb - x.proc.rssMb);
@@ -78,7 +98,7 @@ function hstatsHtml() {
   const cores = snap.machine?.cpuCount || 1;
   const cpuUsed = snap.agents.reduce((t, a) => t + (a.proc?.cpu ?? 0), 0);
   const cpuRatio = cpuUsed / (cores * 100);
-  return `${systemHtml()}<span class="hstat" data-tip="${esc(`Memory used by agents · ${withMem.map(a => `${a.name} ${gb(a.proc.rssMb)}`).join(' · ') || 'none'}`)}"><span class="ml">Agents RAM</span>${memBar}<b>${gb(usedMb)}</b><span class="faint">of ${gb(totalMb)}</span></span>
+  return `${systemHtml()}${healthHtml()}<span class="hstat" data-tip="${esc(`Memory used by agents · ${withMem.map(a => `${a.name} ${gb(a.proc.rssMb)}`).join(' · ') || 'none'}`)}"><span class="ml">Agents RAM</span>${memBar}<b>${gb(usedMb)}</b><span class="faint">of ${gb(totalMb)}</span></span>
     <span class="hstat"><span class="ml">Agents CPU</span>${meter(cpuRatio, severityOf(cpuRatio, 0.5, 0.8), `${Math.round(cpuUsed)}% of one core · ${cores} cores`)}<b>${Math.round(cpuRatio * 100)}% of this computer</b></span>
     ${planHtml()}`;
 }

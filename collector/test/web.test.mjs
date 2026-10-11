@@ -3108,3 +3108,24 @@ test('Windows paths: a file, a folder and a session are named by their last part
   assert.equal(here('docLabel(a, p)', { a: { cwd: '/Users/me/shop' }, p: '/Users/me/shop/docs/spec.md' }), 'docs/spec.md');
   assert.equal(here('short(p)', { p: doc }), `~${b}shop${b}docs${b}spec.md`, 'the home folder is ~ here too');
 });
+
+test("the top bar shows the machine's health: CPU, memory used of total, free space per drive, uptime; nothing before the first reading", () => {
+  const page = loadPage();
+  const snap = richSnapshot([richAgent()]);
+  page.push(snap);
+  assert.doesNotMatch(page.el('hstats').innerHTML, /Machine/);
+  snap.machine.health = { cpuPct: 37, mem: { usedMb: 26214, totalMb: 32768 }, disks: [{ root: 'C:\\', freeGb: 311, totalGb: 931, also: [] }, { root: 'K:\\', freeGb: 162, totalGb: 13074, also: ['S:\\', 'T:\\'] }], uptimeSec: 90061 };
+  page.push(snap);
+  const stats = page.el('hstats').innerHTML;
+  assert.match(stats, /class="ml">Machine</);
+  assert.match(stats, /CPU 37%/);
+  assert.match(stats, /RAM 25\.6 GB of 32\.0 GB/);
+  assert.match(stats, /C: 311 GB free/);
+  assert.match(stats, /K: 162 GB free/);
+  assert.match(stats, /up 1d 1h/);
+  assert.match(stats, /K:\\ \(also S:\\, T:\\\)/); // the tooltip names the drives that are the same volume
+  // before a second reading there is no CPU share to show
+  snap.machine.health.cpuPct = null;
+  page.push(snap);
+  assert.doesNotMatch(page.el('hstats').innerHTML, /CPU \d/);
+});
